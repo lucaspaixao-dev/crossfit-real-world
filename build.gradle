@@ -1,0 +1,86 @@
+plugins {
+    id 'java'
+    id 'checkstyle'
+    id 'org.springframework.boot' version '4.0.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.diffplug.spotless' version '7.0.2'
+}
+
+group = 'io.github.lucaspaixaodev'
+version = '0.0.1-SNAPSHOT'
+description = 'crossfit-real-world-application'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+checkstyle {
+    toolVersion = '10.18.2'
+    configFile = file("$rootDir/config/checkstyle/checkstyle.xml")
+}
+
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.matching { it.name.startsWith('spotless') }.configureEach {
+    notCompatibleWithConfigurationCache('Spotless 7.0.2 has a serialization issue on Gradle 9.x')
+}
+
+spotless {
+    java {
+        target 'src/*/java/**/*.java'
+        eclipse().configFile("$rootDir/config/formatter/eclipse-java-formatter.xml")
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'io.swagger.core.v3:swagger-annotations-jakarta:2.2.22'
+    implementation 'org.flywaydb:flyway-core'
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql'
+    testImplementation 'org.springframework.boot:spring-boot-starter-jdbc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+    testImplementation 'org.testcontainers:testcontainers-postgresql'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('spotlessCheck')
+}
+
+tasks.register('format') {
+    group = 'formatting'
+    description = 'Formats Java source files using Spotless.'
+    dependsOn tasks.named('spotlessApply')
+}
+
+tasks.register('lint') {
+    group = 'verification'
+    description = 'Runs static lint checks (Checkstyle) and formatting verification.'
+    dependsOn tasks.named('checkstyleMain')
+    dependsOn tasks.named('checkstyleTest')
+    dependsOn tasks.named('spotlessCheck')
+}
