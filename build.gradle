@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'checkstyle'
+    id 'jacoco'
     id 'org.springframework.boot' version '4.0.3'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.diffplug.spotless' version '7.0.2'
@@ -63,12 +64,55 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+def domainCoverageInclude = 'io/github/lucaspaixaodev/realworld/domain/**/*.class'
+def domainCoverageExcludes = [
+        'io/github/lucaspaixaodev/realworld/domain/company/CompanyType.class',
+        'io/github/lucaspaixaodev/realworld/domain/company/input/*.class',
+        'io/github/lucaspaixaodev/realworld/domain/company/output/*.class',
+        'io/github/lucaspaixaodev/realworld/domain/company/repository/*.class',
+        'io/github/lucaspaixaodev/realworld/domain/exception/*.class',
+        'io/github/lucaspaixaodev/realworld/domain/shared/State.class',
+        'io/github/lucaspaixaodev/realworld/domain/shared/input/*.class'
+]
+
+def domainCoverageClassDirectories = {
+    files(sourceSets.main.output.classesDirs.collect { classesDir ->
+        fileTree(dir: classesDir, include: [domainCoverageInclude], exclude: domainCoverageExcludes)
+    })
+}
+
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy tasks.named('jacocoTestReport')
+}
+
+tasks.named('jacocoTestReport') {
+    dependsOn tasks.named('test')
+    classDirectories.setFrom(domainCoverageClassDirectories())
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named('jacocoTestCoverageVerification') {
+    dependsOn tasks.named('test')
+    classDirectories.setFrom(domainCoverageClassDirectories())
+    violationRules {
+        rule {
+            element = 'BUNDLE'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.90
+            }
+        }
+    }
 }
 
 tasks.named('check') {
     dependsOn tasks.named('spotlessCheck')
+    dependsOn tasks.named('jacocoTestCoverageVerification')
 }
 
 tasks.register('format') {
