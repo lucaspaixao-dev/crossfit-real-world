@@ -2,7 +2,6 @@ package io.github.lucaspaixaodev.realworld.infra.output.database.company;
 
 import io.github.lucaspaixaodev.realworld.domain.company.Company;
 import io.github.lucaspaixaodev.realworld.domain.company.CompanyType;
-import io.github.lucaspaixaodev.realworld.infra.output.database.shared.AddressEntity;
 import jakarta.persistence.*;
 
 import java.util.UUID;
@@ -27,7 +26,7 @@ public class CompanyEntity {
 	private CompanyType companyType;
 
 	@OneToOne(mappedBy = "company", cascade = CascadeType.ALL, optional = false)
-	private AddressEntity address;
+	private CompanyAddressEntity address;
 
 	@Column(name = "email", nullable = false)
 	private String email;
@@ -55,14 +54,14 @@ public class CompanyEntity {
 		this.cellphone = company.getCellphone().value();
 		this.active = company.isActive();
 
-		attachAddress(new AddressEntity(company.getAddress()));
+		attachAddress(new CompanyAddressEntity(company.getAddress()));
 	}
 
 	public UUID getId() {
 		return id;
 	}
 
-	private void attachAddress(AddressEntity address) {
+	private void attachAddress(CompanyAddressEntity address) {
 		this.address = address;
 		if (address != null) {
 			address.attachCompany(this);

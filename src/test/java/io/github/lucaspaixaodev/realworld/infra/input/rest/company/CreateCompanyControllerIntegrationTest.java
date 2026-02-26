@@ -39,7 +39,7 @@ class CreateCompanyControllerIntegrationTest {
 
 	@BeforeEach
 	void cleanDatabase() {
-		jdbcTemplate.update("DELETE FROM address");
+		jdbcTemplate.update("DELETE FROM company_address");
 		jdbcTemplate.update("DELETE FROM company");
 	}
 
@@ -89,7 +89,8 @@ class CreateCompanyControllerIntegrationTest {
 		assertEquals("11999998888", companyRow.get("cellphone"));
 		assertEquals(Boolean.TRUE, companyRow.get("active"));
 
-		Map<String, Object> addressRow = jdbcTemplate.queryForMap("SELECT * FROM address WHERE id = ?", companyId);
+		Map<String, Object> addressRow = jdbcTemplate.queryForMap("SELECT * FROM company_address WHERE id = ?",
+				companyId);
 		assertEquals(companyId, addressRow.get("id"));
 		assertEquals("Av. Paulista", addressRow.get("street"));
 		assertEquals("1000", addressRow.get("number"));
@@ -135,7 +136,7 @@ class CreateCompanyControllerIntegrationTest {
 				.andExpect(jsonPath("$.errors[*].field", hasItem("email")));
 
 		assertEquals(0, countRows("company"));
-		assertEquals(0, countRows("address"));
+		assertEquals(0, countRows("company_address"));
 	}
 
 	@Test
@@ -171,7 +172,7 @@ class CreateCompanyControllerIntegrationTest {
 				.andExpect(jsonPath("$.instance").value("/companies"));
 
 		assertEquals(0, countRows("company"));
-		assertEquals(0, countRows("address"));
+		assertEquals(0, countRows("company_address"));
 	}
 
 	private int countRows(String tableName) {

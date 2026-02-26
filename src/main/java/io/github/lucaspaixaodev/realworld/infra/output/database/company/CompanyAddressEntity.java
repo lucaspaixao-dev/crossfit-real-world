@@ -1,15 +1,14 @@
-package io.github.lucaspaixaodev.realworld.infra.output.database.shared;
+package io.github.lucaspaixaodev.realworld.infra.output.database.company;
 
 import io.github.lucaspaixaodev.realworld.domain.shared.Address;
 import io.github.lucaspaixaodev.realworld.domain.shared.State;
-import io.github.lucaspaixaodev.realworld.infra.output.database.company.CompanyEntity;
 import jakarta.persistence.*;
 
 import java.util.UUID;
 
 @Entity
-@Table(name = "address")
-public class AddressEntity {
+@Table(name = "company_address")
+public class CompanyAddressEntity {
 	@Id
 	private UUID id;
 
@@ -43,11 +42,11 @@ public class AddressEntity {
 	@Column(name = "country", nullable = false, length = 100)
 	private String country;
 
-	protected AddressEntity() {
+	protected CompanyAddressEntity() {
 	}
 
-	public AddressEntity(String street, String number, String complement, String neighborhood, String city, State state,
-			String postalCode, String country) {
+	public CompanyAddressEntity(String street, String number, String complement, String neighborhood, String city,
+			State state, String postalCode, String country) {
 		this.street = street;
 		this.number = number;
 		this.complement = complement;
@@ -58,7 +57,7 @@ public class AddressEntity {
 		this.country = country;
 	}
 
-	public AddressEntity(Address address) {
+	public CompanyAddressEntity(Address address) {
 		this(address.street(), address.number(), address.complement(), address.neighborhood(), address.city(),
 				address.state(), address.postalCode(), address.country());
 	}

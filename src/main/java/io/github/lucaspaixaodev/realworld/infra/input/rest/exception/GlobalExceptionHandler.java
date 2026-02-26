@@ -3,6 +3,7 @@ package io.github.lucaspaixaodev.realworld.infra.input.rest.exception;
 import io.github.lucaspaixaodev.realworld.domain.exception.BaseException;
 import io.github.lucaspaixaodev.realworld.domain.exception.ValidationException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -33,8 +34,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@Override
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception,
-			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException exception,
+			@NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
 				"Request validation failed");
 		problemDetail.setTitle("Invalid request body");

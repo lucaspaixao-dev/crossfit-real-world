@@ -74,7 +74,9 @@ def domainCoverageExcludes = [
         'io/github/lucaspaixaodev/realworld/domain/company/repository/*.class',
         'io/github/lucaspaixaodev/realworld/domain/exception/*.class',
         'io/github/lucaspaixaodev/realworld/domain/shared/State.class',
-        'io/github/lucaspaixaodev/realworld/domain/shared/input/*.class'
+        'io/github/lucaspaixaodev/realworld/domain/shared/input/*.class',
+        'io/github/lucaspaixaodev/realworld/infra/config/**'
+
 ]
 
 def domainCoverageClassDirectories = {
