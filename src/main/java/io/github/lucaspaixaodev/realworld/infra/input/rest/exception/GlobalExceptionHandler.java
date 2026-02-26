@@ -3,13 +3,17 @@ package io.github.lucaspaixaodev.realworld.infra.input.rest.exception;
 import io.github.lucaspaixaodev.realworld.domain.exception.BaseException;
 import io.github.lucaspaixaodev.realworld.domain.exception.ValidationException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.net.URI;
@@ -28,13 +32,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(status).body(problemDetail);
 	}
 
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ProblemDetail> handleMethodArgumentNotValid(MethodArgumentNotValidException exception,
-			HttpServletRequest request) {
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception,
+			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
 				"Request validation failed");
 		problemDetail.setTitle("Invalid request body");
-		problemDetail.setInstance(URI.create(request.getRequestURI()));
+		if (request instanceof ServletWebRequest servletWebRequest) {
+			problemDetail.setInstance(URI.create(servletWebRequest.getRequest().getRequestURI()));
+		}
 		problemDetail.setProperty("errors",
 				exception.getBindingResult().getFieldErrors().stream().map(this::toErrorItem).toList());
 
