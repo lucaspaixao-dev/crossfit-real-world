@@ -42,6 +42,24 @@ public class PostgresCompanyRepository implements CompanyRepository {
         return companyJpaRepository.findById(id.value()).map(this::toDomain);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByTaxId(String taxId) {
+        return companyJpaRepository.existsByTaxId(taxId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByLegalName(String legalName) {
+        return companyJpaRepository.existsByLegalName(legalName);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) {
+        return companyJpaRepository.existsByEmail(email);
+    }
+
     private Company toDomain(CompanyEntity entity) {
         CompanyAddressEntity addressEntity = entity.getAddress();
         Address address = new Address(addressEntity.getStreet(), addressEntity.getNumber(),

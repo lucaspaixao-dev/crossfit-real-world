@@ -5,6 +5,7 @@ import io.github.lucaspaixaodev.realworld.domain.company.CompanyType;
 import io.github.lucaspaixaodev.realworld.domain.company.input.CreateCompanyInput;
 import io.github.lucaspaixaodev.realworld.domain.company.output.CreateCompanyOutput;
 import io.github.lucaspaixaodev.realworld.domain.company.repository.CompanyRepository;
+import io.github.lucaspaixaodev.realworld.domain.exception.AlreadyExistsException;
 import io.github.lucaspaixaodev.realworld.domain.shared.State;
 import io.github.lucaspaixaodev.realworld.domain.shared.input.AddressInput;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,45 @@ class CreateCompanyServiceTest {
     }
 
     @Test
+    void executeShouldThrowWhenTaxIdAlreadyExists() {
+        CompanyRepository repository = mock(CompanyRepository.class);
+        CreateCompanyService service = new CreateCompanyService(repository);
+        CreateCompanyInput input = validInput();
+        when(repository.existsByTaxId("11222333000181")).thenReturn(true);
+
+        AlreadyExistsException exception = assertThrows(AlreadyExistsException.class, () -> service.execute(input));
+
+        assertEquals("taxId already exists", exception.getMessage());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void executeShouldThrowWhenLegalNameAlreadyExists() {
+        CompanyRepository repository = mock(CompanyRepository.class);
+        CreateCompanyService service = new CreateCompanyService(repository);
+        CreateCompanyInput input = validInput();
+        when(repository.existsByLegalName("Empresa Legal")).thenReturn(true);
+
+        AlreadyExistsException exception = assertThrows(AlreadyExistsException.class, () -> service.execute(input));
+
+        assertEquals("legalName already exists", exception.getMessage());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void executeShouldThrowWhenEmailAlreadyExists() {
+        CompanyRepository repository = mock(CompanyRepository.class);
+        CreateCompanyService service = new CreateCompanyService(repository);
+        CreateCompanyInput input = validInput();
+        when(repository.existsByEmail("contato@empresa.com")).thenReturn(true);
+
+        AlreadyExistsException exception = assertThrows(AlreadyExistsException.class, () -> service.execute(input));
+
+        assertEquals("email already exists", exception.getMessage());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
     void executeShouldThrowWhenCompanyTypeIsInvalid() {
         CompanyRepository repository = mock(CompanyRepository.class);
         CreateCompanyService service = new CreateCompanyService(repository);
@@ -68,5 +108,10 @@ class CreateCompanyServiceTest {
 
     private static AddressInput validAddressInput() {
         return new AddressInput("Rua A", "10", null, "Centro", "Sao Paulo", "SP", "01001000", "Brasil");
+    }
+
+    private static CreateCompanyInput validInput() {
+        return new CreateCompanyInput("Empresa Legal", "Marca", "11222333000181", "LTDA", validAddressInput(),
+                "contato@empresa.com", "1133445566", "11987654321");
     }
 }

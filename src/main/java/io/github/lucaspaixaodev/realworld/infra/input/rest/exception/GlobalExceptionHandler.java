@@ -1,6 +1,7 @@
 package io.github.lucaspaixaodev.realworld.infra.input.rest.exception;
 
 import io.github.lucaspaixaodev.realworld.domain.exception.BaseException;
+import io.github.lucaspaixaodev.realworld.domain.exception.AlreadyExistsException;
 import io.github.lucaspaixaodev.realworld.domain.exception.NotFoundException;
 import io.github.lucaspaixaodev.realworld.domain.exception.ValidationException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,6 +53,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private HttpStatus resolveStatus(BaseException exception) {
         if (exception instanceof ValidationException) {
             return HttpStatus.BAD_REQUEST;
+        }
+        if (exception instanceof AlreadyExistsException) {
+            return HttpStatus.CONFLICT;
         }
         if (exception instanceof NotFoundException) {
             return HttpStatus.NOT_FOUND;

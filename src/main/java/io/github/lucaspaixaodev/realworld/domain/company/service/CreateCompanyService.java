@@ -5,6 +5,7 @@ import io.github.lucaspaixaodev.realworld.domain.company.CompanyType;
 import io.github.lucaspaixaodev.realworld.domain.company.input.CreateCompanyInput;
 import io.github.lucaspaixaodev.realworld.domain.company.output.CreateCompanyOutput;
 import io.github.lucaspaixaodev.realworld.domain.company.repository.CompanyRepository;
+import io.github.lucaspaixaodev.realworld.domain.exception.AlreadyExistsException;
 import io.github.lucaspaixaodev.realworld.domain.shared.*;
 import io.github.lucaspaixaodev.realworld.domain.shared.input.AddressInput;
 
@@ -20,9 +21,22 @@ public class CreateCompanyService {
                 CompanyType.valueOf(input.companyType().toUpperCase()), toAddress(input.address()),
                 new Email(input.email()), new Phone(input.phone()), new Cellphone(input.cellphone()));
 
+        validateUniqueness(company);
         companyRepository.save(company);
 
         return new CreateCompanyOutput(company.getId().toString());
+    }
+
+    private void validateUniqueness(Company company) {
+        if (companyRepository.existsByTaxId(company.getTaxId())) {
+            throw new AlreadyExistsException("taxId already exists");
+        }
+        if (companyRepository.existsByLegalName(company.getLegalName())) {
+            throw new AlreadyExistsException("legalName already exists");
+        }
+        if (companyRepository.existsByEmail(company.getEmail().value())) {
+            throw new AlreadyExistsException("email already exists");
+        }
     }
 
     private Address toAddress(AddressInput input) {

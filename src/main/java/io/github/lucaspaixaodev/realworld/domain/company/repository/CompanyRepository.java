@@ -10,4 +10,10 @@ public interface CompanyRepository {
     void save(Company company);
 
     Optional<Company> findById(ID id);
+
+    boolean existsByTaxId(String taxId);
+
+    boolean existsByLegalName(String legalName);
+
+    boolean existsByEmail(String email);
 }

@@ -12,7 +12,7 @@ public class CompanyEntity {
     @Id
     private UUID id;
 
-    @Column(name = "legal_name", nullable = false)
+    @Column(name = "legal_name", nullable = false, unique = true)
     private String legalName;
 
     @Column(name = "trade_name", nullable = false)
@@ -28,7 +28,7 @@ public class CompanyEntity {
     @OneToOne(mappedBy = "company", cascade = CascadeType.ALL, optional = false)
     private CompanyAddressEntity address;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "phone", nullable = true, length = 10)

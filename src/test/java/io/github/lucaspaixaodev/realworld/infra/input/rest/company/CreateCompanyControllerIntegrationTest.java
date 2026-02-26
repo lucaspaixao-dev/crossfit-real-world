@@ -14,6 +14,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -103,6 +104,17 @@ class CreateCompanyControllerIntegrationTest {
     }
 
     @Test
+    void shouldCreateUniqueIndexesForCompanyTable() {
+        List<String> indexNames = jdbcTemplate.queryForList(
+                "SELECT indexname FROM pg_indexes WHERE schemaname = current_schema() AND tablename = 'company'",
+                String.class);
+
+        assertTrue(indexNames.contains("ux_company_legal_name"));
+        assertTrue(indexNames.contains("ux_company_tax_id"));
+        assertTrue(indexNames.contains("ux_company_email"));
+    }
+
+    @Test
     void shouldReturnBadRequestWhenRequestBodyValidationFails() throws Exception {
         String requestBody = """
                 {
@@ -175,8 +187,97 @@ class CreateCompanyControllerIntegrationTest {
         assertEquals(0, countRows("company_address"));
     }
 
+    @Test
+    void shouldReturnUnprocessableContentWhenTaxIdAlreadyExists() throws Exception {
+        insertCompanyGraph(UUID.randomUUID(), "Existing Legal Name", "Existing Trade", "11222333000181",
+                "existing@company.com");
+
+        mockMvc.perform(post("/companies").contentType(MediaType.APPLICATION_JSON).content(validCreateRequestBody(
+                "New Legal Name LTDA", "New Trade", "11222333000181", "new@company.com")))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.parseMediaType(
+                        MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
+                .andExpect(jsonPath("$.title").value("Business error"))
+                .andExpect(jsonPath("$.detail").value("taxId already exists"))
+                .andExpect(jsonPath("$.instance").value("/companies"));
+
+        assertEquals(1, countRows("company"));
+        assertEquals(1, countRows("company_address"));
+    }
+
+    @Test
+    void shouldReturnUnprocessableContentWhenLegalNameAlreadyExists() throws Exception {
+        insertCompanyGraph(UUID.randomUUID(), "Crossfit Real World LTDA", "Existing Trade", "99888777000166",
+                "existing@company.com");
+
+        mockMvc.perform(post("/companies").contentType(MediaType.APPLICATION_JSON).content(validCreateRequestBody(
+                "Crossfit Real World LTDA", "New Trade", "11222333000181", "new@company.com")))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.parseMediaType(
+                        MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
+                .andExpect(jsonPath("$.title").value("Business error"))
+                .andExpect(jsonPath("$.detail").value("legalName already exists"))
+                .andExpect(jsonPath("$.instance").value("/companies"));
+
+        assertEquals(1, countRows("company"));
+        assertEquals(1, countRows("company_address"));
+    }
+
+    @Test
+    void shouldReturnUnprocessableContentWhenEmailAlreadyExists() throws Exception {
+        insertCompanyGraph(UUID.randomUUID(), "Existing Legal Name", "Existing Trade", "99888777000166",
+                "contato@crossfitrealworld.com");
+
+        mockMvc.perform(post("/companies").contentType(MediaType.APPLICATION_JSON).content(validCreateRequestBody(
+                "New Legal Name LTDA", "New Trade", "11222333000181", "contato@crossfitrealworld.com")))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.parseMediaType(
+                        MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
+                .andExpect(jsonPath("$.title").value("Business error"))
+                .andExpect(jsonPath("$.detail").value("email already exists"))
+                .andExpect(jsonPath("$.instance").value("/companies"));
+
+        assertEquals(1, countRows("company"));
+        assertEquals(1, countRows("company_address"));
+    }
+
     private int countRows(String tableName) {
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + tableName, Integer.class);
         return Objects.requireNonNull(count, "row count must not be null");
+    }
+
+    private void insertCompanyGraph(UUID id, String legalName, String tradeName, String taxId, String email) {
+        jdbcTemplate.update(
+                "INSERT INTO company (id, legal_name, trade_name, tax_id, company_type, email, phone, cellphone, active) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                id, legalName, tradeName, taxId, "LTDA", email, "1133334444", "11999998888", true);
+        jdbcTemplate.update(
+                "INSERT INTO company_address (id, street, number, complement, neighborhood, city, state, postal_code, country) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                id, "Av. Paulista", "1000", "Sala 12", "Bela Vista", "Sao Paulo", "SP", "01310100", "Brasil");
+    }
+
+    private String validCreateRequestBody(String legalName, String tradeName, String taxId, String email) {
+        return """
+                {
+                  "legalName": "%s",
+                  "tradeName": "%s",
+                  "taxId": "%s",
+                  "companyType": "LTDA",
+                  "address": {
+                    "street": "Av. Paulista",
+                    "number": "1000",
+                    "complement": "Sala 12",
+                    "neighborhood": "Bela Vista",
+                    "city": "Sao Paulo",
+                    "state": "SP",
+                    "postalCode": "01310100",
+                    "country": "Brasil"
+                  },
+                  "email": "%s",
+                  "phone": "1133334444",
+                  "cellphone": "11999998888"
+                }
+                """.formatted(legalName, tradeName, taxId, email);
     }
 }
