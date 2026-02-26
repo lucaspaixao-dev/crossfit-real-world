@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class CrossfitRealWorldApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(CrossfitRealWorldApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(CrossfitRealWorldApplication.class, args);
+    }
 
 }

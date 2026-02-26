@@ -7,17 +7,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CellphoneTest {
 
-	@Test
-	void shouldTrimAndStoreCellphoneValue() {
-		Cellphone cellphone = new Cellphone(" 11987654321 ");
+    @Test
+    void shouldTrimAndStoreCellphoneValue() {
+        Cellphone cellphone = new Cellphone(" 11987654321 ");
 
-		assertEquals("11987654321", cellphone.value());
-	}
+        assertEquals("11987654321", cellphone.value());
+    }
 
-	@Test
-	void shouldThrowWhenCellphoneHasWrongLength() {
-		ValidationException ex = assertThrows(ValidationException.class, () -> new Cellphone("1198765432"));
+    @Test
+    void shouldThrowWhenCellphoneHasWrongLength() {
+        ValidationException ex = assertThrows(ValidationException.class, () -> new Cellphone("1198765432"));
 
-		assertEquals("cellphone must have 11 characters", ex.getMessage());
-	}
+        assertEquals("cellphone must have 11 characters", ex.getMessage());
+    }
 }

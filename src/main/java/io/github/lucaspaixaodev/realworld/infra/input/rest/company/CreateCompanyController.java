@@ -12,23 +12,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CreateCompanyController implements CreateCompanyApi {
-	private static final Logger log = LoggerFactory.getLogger(CreateCompanyController.class);
+    private static final Logger log = LoggerFactory.getLogger(CreateCompanyController.class);
 
-	private final CreateCompanyUseCase createCompanyUseCase;
+    private final CreateCompanyUseCase createCompanyUseCase;
 
-	public CreateCompanyController(CreateCompanyUseCase createCompanyUseCase) {
-		this.createCompanyUseCase = createCompanyUseCase;
-	}
+    public CreateCompanyController(CreateCompanyUseCase createCompanyUseCase) {
+        this.createCompanyUseCase = createCompanyUseCase;
+    }
 
-	@Override
-	public ResponseEntity<CreateCompanyResponse> createCompany(CreateCompanyRequest request) {
-		log.info("Received create company request. request={}", request);
+    @Override
+    public ResponseEntity<CreateCompanyResponse> createCompany(CreateCompanyRequest request) {
+        log.info("Received create company request. request={}", request);
 
-		var output = createCompanyUseCase.execute(request.toInput());
-		var response = CreateCompanyResponse.from(output);
+        var output = createCompanyUseCase.execute(request.toInput());
+        var response = CreateCompanyResponse.from(output);
 
-		log.info("Create company request processed successfully. response={}", response);
+        log.info("Create company request processed successfully. response={}", response);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
-	}
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 }

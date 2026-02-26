@@ -28,155 +28,155 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class CreateCompanyControllerIntegrationTest {
 
-	@Autowired
-	private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-	@BeforeEach
-	void cleanDatabase() {
-		jdbcTemplate.update("DELETE FROM company_address");
-		jdbcTemplate.update("DELETE FROM company");
-	}
+    @BeforeEach
+    void cleanDatabase() {
+        jdbcTemplate.update("DELETE FROM company_address");
+        jdbcTemplate.update("DELETE FROM company");
+    }
 
-	@Test
-	void shouldCreateCompanyAndPersistCompanyAndAddress() throws Exception {
-		String requestBody = """
-				{
-				  "legalName": "Crossfit Real World LTDA",
-				  "tradeName": "Crossfit Real World",
-				  "taxId": "11222333000181",
-				  "companyType": "ltda",
-				  "address": {
-				    "street": "Av. Paulista",
-				    "number": "1000",
-				    "complement": "Sala 12",
-				    "neighborhood": "Bela Vista",
-				    "city": "Sao Paulo",
-				    "state": "sp",
-				    "postalCode": "01310100",
-				    "country": "Brasil"
-				  },
-				  "email": "contato@crossfitrealworld.com",
-				  "phone": "1133334444",
-				  "cellphone": "11999998888"
-				}
-				""";
+    @Test
+    void shouldCreateCompanyAndPersistCompanyAndAddress() throws Exception {
+        String requestBody = """
+                {
+                  "legalName": "Crossfit Real World LTDA",
+                  "tradeName": "Crossfit Real World",
+                  "taxId": "11222333000181",
+                  "companyType": "ltda",
+                  "address": {
+                    "street": "Av. Paulista",
+                    "number": "1000",
+                    "complement": "Sala 12",
+                    "neighborhood": "Bela Vista",
+                    "city": "Sao Paulo",
+                    "state": "sp",
+                    "postalCode": "01310100",
+                    "country": "Brasil"
+                  },
+                  "email": "contato@crossfitrealworld.com",
+                  "phone": "1133334444",
+                  "cellphone": "11999998888"
+                }
+                """;
 
-		MvcResult result = mockMvc
-				.perform(post("/companies").contentType(MediaType.APPLICATION_JSON).content(requestBody))
-				.andExpect(status().isCreated())
-				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.id").isString()).andReturn();
+        MvcResult result = mockMvc
+                .perform(post("/companies").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").isString()).andReturn();
 
-		JsonNode responseJson = objectMapper.readTree(result.getResponse().getContentAsString(StandardCharsets.UTF_8));
-		JsonNode idNode = Objects.requireNonNull(responseJson.get("id"), "response id must be present");
-		String id = Objects.requireNonNull(idNode.stringValue(), "response id must be textual");
-		UUID companyId = UUID.fromString(id);
+        JsonNode responseJson = objectMapper.readTree(result.getResponse().getContentAsString(StandardCharsets.UTF_8));
+        JsonNode idNode = Objects.requireNonNull(responseJson.get("id"), "response id must be present");
+        String id = Objects.requireNonNull(idNode.stringValue(), "response id must be textual");
+        UUID companyId = UUID.fromString(id);
 
-		Map<String, Object> companyRow = jdbcTemplate.queryForMap("SELECT * FROM company WHERE id = ?", companyId);
-		assertEquals(companyId, companyRow.get("id"));
-		assertEquals("Crossfit Real World LTDA", companyRow.get("legal_name"));
-		assertEquals("Crossfit Real World", companyRow.get("trade_name"));
-		assertEquals("11222333000181", companyRow.get("tax_id"));
-		assertEquals("LTDA", companyRow.get("company_type"));
-		assertEquals("contato@crossfitrealworld.com", companyRow.get("email"));
-		assertEquals("1133334444", companyRow.get("phone"));
-		assertEquals("11999998888", companyRow.get("cellphone"));
-		assertEquals(Boolean.TRUE, companyRow.get("active"));
+        Map<String, Object> companyRow = jdbcTemplate.queryForMap("SELECT * FROM company WHERE id = ?", companyId);
+        assertEquals(companyId, companyRow.get("id"));
+        assertEquals("Crossfit Real World LTDA", companyRow.get("legal_name"));
+        assertEquals("Crossfit Real World", companyRow.get("trade_name"));
+        assertEquals("11222333000181", companyRow.get("tax_id"));
+        assertEquals("LTDA", companyRow.get("company_type"));
+        assertEquals("contato@crossfitrealworld.com", companyRow.get("email"));
+        assertEquals("1133334444", companyRow.get("phone"));
+        assertEquals("11999998888", companyRow.get("cellphone"));
+        assertEquals(Boolean.TRUE, companyRow.get("active"));
 
-		Map<String, Object> addressRow = jdbcTemplate.queryForMap("SELECT * FROM company_address WHERE id = ?",
-				companyId);
-		assertEquals(companyId, addressRow.get("id"));
-		assertEquals("Av. Paulista", addressRow.get("street"));
-		assertEquals("1000", addressRow.get("number"));
-		assertEquals("Sala 12", addressRow.get("complement"));
-		assertEquals("Bela Vista", addressRow.get("neighborhood"));
-		assertEquals("Sao Paulo", addressRow.get("city"));
-		assertEquals("SP", addressRow.get("state"));
-		assertEquals("01310100", addressRow.get("postal_code"));
-		assertEquals("Brasil", addressRow.get("country"));
-	}
+        Map<String, Object> addressRow = jdbcTemplate.queryForMap("SELECT * FROM company_address WHERE id = ?",
+                companyId);
+        assertEquals(companyId, addressRow.get("id"));
+        assertEquals("Av. Paulista", addressRow.get("street"));
+        assertEquals("1000", addressRow.get("number"));
+        assertEquals("Sala 12", addressRow.get("complement"));
+        assertEquals("Bela Vista", addressRow.get("neighborhood"));
+        assertEquals("Sao Paulo", addressRow.get("city"));
+        assertEquals("SP", addressRow.get("state"));
+        assertEquals("01310100", addressRow.get("postal_code"));
+        assertEquals("Brasil", addressRow.get("country"));
+    }
 
-	@Test
-	void shouldReturnBadRequestWhenRequestBodyValidationFails() throws Exception {
-		String requestBody = """
-				{
-				  "legalName": "Crossfit Real World LTDA",
-				  "tradeName": "Crossfit Real World",
-				  "taxId": "11222333000181",
-				  "companyType": "LTDA",
-				  "address": {
-				    "street": "Av. Paulista",
-				    "number": "1000",
-				    "complement": "Sala 12",
-				    "neighborhood": "Bela Vista",
-				    "city": "Sao Paulo",
-				    "state": "SP",
-				    "postalCode": "01310100",
-				    "country": "Brasil"
-				  },
-				  "email": "invalid-email",
-				  "phone": "1133334444",
-				  "cellphone": "11999998888"
-				}
-				""";
+    @Test
+    void shouldReturnBadRequestWhenRequestBodyValidationFails() throws Exception {
+        String requestBody = """
+                {
+                  "legalName": "Crossfit Real World LTDA",
+                  "tradeName": "Crossfit Real World",
+                  "taxId": "11222333000181",
+                  "companyType": "LTDA",
+                  "address": {
+                    "street": "Av. Paulista",
+                    "number": "1000",
+                    "complement": "Sala 12",
+                    "neighborhood": "Bela Vista",
+                    "city": "Sao Paulo",
+                    "state": "SP",
+                    "postalCode": "01310100",
+                    "country": "Brasil"
+                  },
+                  "email": "invalid-email",
+                  "phone": "1133334444",
+                  "cellphone": "11999998888"
+                }
+                """;
 
-		mockMvc.perform(post("/companies").contentType(MediaType.APPLICATION_JSON).content(requestBody))
-				.andExpect(status().isBadRequest())
-				.andExpect(content().contentTypeCompatibleWith(MediaType.parseMediaType(
-						MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
-				.andExpect(jsonPath("$.title").value("Invalid request body"))
-				.andExpect(jsonPath("$.detail").value("Request validation failed"))
-				.andExpect(jsonPath("$.instance").value("/companies"))
-				.andExpect(jsonPath("$.errors[*].field", hasItem("email")));
+        mockMvc.perform(post("/companies").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.parseMediaType(
+                        MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
+                .andExpect(jsonPath("$.title").value("Invalid request body"))
+                .andExpect(jsonPath("$.detail").value("Request validation failed"))
+                .andExpect(jsonPath("$.instance").value("/companies"))
+                .andExpect(jsonPath("$.errors[*].field", hasItem("email")));
 
-		assertEquals(0, countRows("company"));
-		assertEquals(0, countRows("company_address"));
-	}
+        assertEquals(0, countRows("company"));
+        assertEquals(0, countRows("company_address"));
+    }
 
-	@Test
-	void shouldReturnBadRequestWhenDomainValidationFails() throws Exception {
-		String requestBody = """
-				{
-				  "legalName": "Crossfit Real World LTDA",
-				  "tradeName": "Crossfit Real World",
-				  "taxId": "11222333000182",
-				  "companyType": "LTDA",
-				  "address": {
-				    "street": "Av. Paulista",
-				    "number": "1000",
-				    "complement": "Sala 12",
-				    "neighborhood": "Bela Vista",
-				    "city": "Sao Paulo",
-				    "state": "SP",
-				    "postalCode": "01310100",
-				    "country": "Brasil"
-				  },
-				  "email": "contato@crossfitrealworld.com",
-				  "phone": "1133334444",
-				  "cellphone": "11999998888"
-				}
-				""";
+    @Test
+    void shouldReturnBadRequestWhenDomainValidationFails() throws Exception {
+        String requestBody = """
+                {
+                  "legalName": "Crossfit Real World LTDA",
+                  "tradeName": "Crossfit Real World",
+                  "taxId": "11222333000182",
+                  "companyType": "LTDA",
+                  "address": {
+                    "street": "Av. Paulista",
+                    "number": "1000",
+                    "complement": "Sala 12",
+                    "neighborhood": "Bela Vista",
+                    "city": "Sao Paulo",
+                    "state": "SP",
+                    "postalCode": "01310100",
+                    "country": "Brasil"
+                  },
+                  "email": "contato@crossfitrealworld.com",
+                  "phone": "1133334444",
+                  "cellphone": "11999998888"
+                }
+                """;
 
-		mockMvc.perform(post("/companies").contentType(MediaType.APPLICATION_JSON).content(requestBody))
-				.andExpect(status().isBadRequest())
-				.andExpect(content().contentTypeCompatibleWith(MediaType.parseMediaType(
-						MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
-				.andExpect(jsonPath("$.title").value("Validation error"))
-				.andExpect(jsonPath("$.detail").value("taxId must be a valid Tax id"))
-				.andExpect(jsonPath("$.instance").value("/companies"));
+        mockMvc.perform(post("/companies").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.parseMediaType(
+                        MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
+                .andExpect(jsonPath("$.title").value("Validation error"))
+                .andExpect(jsonPath("$.detail").value("taxId must be a valid Tax id"))
+                .andExpect(jsonPath("$.instance").value("/companies"));
 
-		assertEquals(0, countRows("company"));
-		assertEquals(0, countRows("company_address"));
-	}
+        assertEquals(0, countRows("company"));
+        assertEquals(0, countRows("company_address"));
+    }
 
-	private int countRows(String tableName) {
-		Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + tableName, Integer.class);
-		return Objects.requireNonNull(count, "row count must not be null");
-	}
+    private int countRows(String tableName) {
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + tableName, Integer.class);
+        return Objects.requireNonNull(count, "row count must not be null");
+    }
 }

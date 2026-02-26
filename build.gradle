@@ -41,6 +41,7 @@ spotless {
     java {
         target 'src/*/java/**/*.java'
         eclipse().configFile("$rootDir/config/formatter/eclipse-java-formatter.xml")
+        leadingTabsToSpaces(4)
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()

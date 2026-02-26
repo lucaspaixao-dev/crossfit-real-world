@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 
 public class TestCrossfitRealWorldApplication {
 
-	static void main(String[] args) {
-		SpringApplication.from(CrossfitRealWorldApplication::main).with(TestcontainersConfiguration.class).run(args);
-	}
+    static void main(String[] args) {
+        SpringApplication.from(CrossfitRealWorldApplication::main).with(TestcontainersConfiguration.class).run(args);
+    }
 
 }

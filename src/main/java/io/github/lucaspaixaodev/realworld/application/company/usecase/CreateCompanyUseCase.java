@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CreateCompanyUseCase {
-	private final CreateCompanyService createCompanyService;
+    private final CreateCompanyService createCompanyService;
 
-	public CreateCompanyUseCase(CreateCompanyService createCompanyService) {
-		this.createCompanyService = createCompanyService;
-	}
+    public CreateCompanyUseCase(CreateCompanyService createCompanyService) {
+        this.createCompanyService = createCompanyService;
+    }
 
-	public CreateCompanyOutput execute(CreateCompanyInput input) {
-		return createCompanyService.execute(input);
-	}
+    public CreateCompanyOutput execute(CreateCompanyInput input) {
+        return createCompanyService.execute(input);
+    }
 }
