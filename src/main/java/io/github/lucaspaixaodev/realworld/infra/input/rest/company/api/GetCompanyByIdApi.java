@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Tag(name = "Companies", description = "Company management endpoints")
 public interface GetCompanyByIdApi {
 
-    @GetMapping("/company/{id}")
+    @GetMapping("/companies/{id}")
     @Operation(summary = "Get company by id", description = "Returns a company by identifier")
     @ApiResponses(value = {
             @ApiResponse(

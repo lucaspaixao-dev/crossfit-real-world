@@ -13,7 +13,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -88,6 +92,9 @@ class CreateCompanyControllerIntegrationTest {
         assertEquals("contato@crossfitrealworld.com", companyRow.get("email"));
         assertEquals("1133334444", companyRow.get("phone"));
         assertEquals("11999998888", companyRow.get("cellphone"));
+        assertEquals(Date.valueOf(LocalDate.now()), companyRow.get("registered_at"));
+        assertNotNull(companyRow.get("created_at"));
+        assertNotNull(companyRow.get("updated_at"));
         assertEquals(Boolean.TRUE, companyRow.get("active"));
 
         Map<String, Object> addressRow = jdbcTemplate.queryForMap("SELECT * FROM company_address WHERE id = ?",
@@ -247,10 +254,13 @@ class CreateCompanyControllerIntegrationTest {
     }
 
     private void insertCompanyGraph(UUID id, String legalName, String tradeName, String taxId, String email) {
+        LocalDate registeredAt = LocalDate.of(2026, 2, 27);
+        Timestamp now = Timestamp.valueOf(LocalDateTime.of(2026, 2, 27, 9, 0));
         jdbcTemplate.update(
-                "INSERT INTO company (id, legal_name, trade_name, tax_id, company_type, email, phone, cellphone, active) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                id, legalName, tradeName, taxId, "LTDA", email, "1133334444", "11999998888", true);
+                "INSERT INTO company (id, legal_name, trade_name, tax_id, company_type, email, phone, cellphone, registered_at, created_at, updated_at, active) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                id, legalName, tradeName, taxId, "LTDA", email, "1133334444", "11999998888",
+                Date.valueOf(registeredAt), now, now, true);
         jdbcTemplate.update(
                 "INSERT INTO company_address (id, street, number, complement, neighborhood, city, state, postal_code, country) "
                         + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",

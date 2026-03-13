@@ -2,6 +2,8 @@ package io.github.lucaspaixaodev.realworld.domain.company;
 
 import io.github.lucaspaixaodev.realworld.domain.shared.*;
 
+import java.time.LocalDate;
+
 import static io.github.lucaspaixaodev.realworld.domain.validation.Validation.*;
 
 public class Company {
@@ -18,10 +20,11 @@ public class Company {
     private final Email email;
     private final Phone phone;
     private final Cellphone cellphone;
+    private final LocalDate registeredAt;
     private final boolean active;
 
     private Company(ID id, String legalName, String tradeName, String taxId, CompanyType companyType, Address address,
-            Email email, Phone phone, Cellphone cellphone, boolean active) {
+            Email email, Phone phone, Cellphone cellphone, LocalDate registeredAt, boolean active) {
         String normalizedLegalName = requireNotBlank(legalName, "legalName");
         String normalizedTradeName = requireNotBlank(tradeName, "tradeName");
         String normalizedTaxId = requireNotBlank(taxId, "taxId");
@@ -35,18 +38,20 @@ public class Company {
         this.email = email;
         this.phone = phone;
         this.cellphone = cellphone;
+        this.registeredAt = requireNotNull(registeredAt, "registeredAt");
         this.active = active;
     }
 
     public static Company create(String legalName, String tradeName, String taxId, CompanyType companyType,
             Address address, Email email, Phone phone, Cellphone cellphone) {
         return new Company(ID.random(), legalName, tradeName, taxId, companyType, address, email, phone, cellphone,
-                true);
+                LocalDate.now(), true);
     }
 
     public static Company restore(ID id, String legalName, String tradeName, String taxId, CompanyType companyType,
-            Address address, Email email, Phone phone, Cellphone cellphone, boolean active) {
-        return new Company(id, legalName, tradeName, taxId, companyType, address, email, phone, cellphone, active);
+            Address address, Email email, Phone phone, Cellphone cellphone, LocalDate registeredAt, boolean active) {
+        return new Company(id, legalName, tradeName, taxId, companyType, address, email, phone, cellphone,
+                registeredAt, active);
     }
 
     public ID getId() {
@@ -83,6 +88,10 @@ public class Company {
 
     public Cellphone getCellphone() {
         return cellphone;
+    }
+
+    public LocalDate getRegisteredAt() {
+        return registeredAt;
     }
 
     public boolean isActive() {

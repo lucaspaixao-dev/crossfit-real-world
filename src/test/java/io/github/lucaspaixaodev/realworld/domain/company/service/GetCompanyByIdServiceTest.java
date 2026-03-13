@@ -14,6 +14,7 @@ import io.github.lucaspaixaodev.realworld.domain.shared.Phone;
 import io.github.lucaspaixaodev.realworld.domain.shared.State;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,9 +29,11 @@ class GetCompanyByIdServiceTest {
         GetCompanyByIdService service = new GetCompanyByIdService(repository);
         UUID uuid = UUID.randomUUID();
         ID id = ID.from(uuid);
+        LocalDate registeredAt = LocalDate.of(2026, 2, 27);
         Company company = Company.restore(id, "Empresa Legal", "Marca", "11222333000181", CompanyType.LTDA,
                 new Address("Rua A", "10", "Sala 1", "Centro", "Sao Paulo", State.SP, "01001000", "Brasil"),
-                new Email("contato@empresa.com"), new Phone("1133445566"), new Cellphone("11987654321"), true);
+                new Email("contato@empresa.com"), new Phone("1133445566"), new Cellphone("11987654321"),
+                registeredAt, true);
 
         when(repository.findById(id)).thenReturn(Optional.of(company));
 
@@ -44,6 +47,7 @@ class GetCompanyByIdServiceTest {
         assertEquals("contato@empresa.com", output.email());
         assertEquals("1133445566", output.phone());
         assertEquals("11987654321", output.cellphone());
+        assertEquals("2026-02-27", output.registeredAt());
         assertTrue(output.active());
         assertNotNull(output.address());
         assertEquals("Rua A", output.address().street());

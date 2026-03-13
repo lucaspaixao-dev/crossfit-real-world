@@ -35,7 +35,7 @@ public class GetCompanyByIdService {
         return new GetCompanyByIdOutput(company.getId().toString(), company.getLegalName(), company.getTradeName(),
                 company.getTaxId(), company.getCompanyType().name(), toAddressOutput(company.getAddress()),
                 company.getEmail().value(), company.getPhone() != null ? company.getPhone().value() : null,
-                company.getCellphone().value(), company.isActive());
+                company.getCellphone().value(), company.getRegisteredAt().toString(), company.isActive());
     }
 
     private GetCompanyByIdOutput.AddressOutput toAddressOutput(Address address) {

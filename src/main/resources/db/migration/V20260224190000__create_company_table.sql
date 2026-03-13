@@ -7,6 +7,9 @@ CREATE TABLE company (
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(10),
     cellphone VARCHAR(11) NOT NULL,
+    registered_at DATE NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     active BOOLEAN NOT NULL
 );
 

@@ -2,13 +2,15 @@ package io.github.lucaspaixaodev.realworld.infra.output.database.company;
 
 import io.github.lucaspaixaodev.realworld.domain.company.Company;
 import io.github.lucaspaixaodev.realworld.domain.company.CompanyType;
+import io.github.lucaspaixaodev.realworld.infra.output.database.shared.AuditedEntity;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @Table(name = "company")
-public class CompanyEntity {
+public class CompanyEntity extends AuditedEntity {
     @Id
     private UUID id;
 
@@ -37,6 +39,9 @@ public class CompanyEntity {
     @Column(name = "cellphone", nullable = false, length = 11)
     private String cellphone;
 
+    @Column(name = "registered_at", nullable = false)
+    private LocalDate registeredAt;
+
     @Column(name = "active", nullable = false)
     private boolean active;
 
@@ -52,6 +57,7 @@ public class CompanyEntity {
         this.email = company.getEmail().value();
         this.phone = company.getPhone().value();
         this.cellphone = company.getCellphone().value();
+        this.registeredAt = company.getRegisteredAt();
         this.active = company.isActive();
 
         attachAddress(new CompanyAddressEntity(company.getAddress()));
@@ -91,6 +97,10 @@ public class CompanyEntity {
 
     public String getCellphone() {
         return cellphone;
+    }
+
+    public LocalDate getRegisteredAt() {
+        return registeredAt;
     }
 
     public boolean isActive() {

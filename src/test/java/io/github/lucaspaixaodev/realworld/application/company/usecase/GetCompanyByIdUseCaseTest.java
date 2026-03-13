@@ -17,7 +17,7 @@ class GetCompanyByIdUseCaseTest {
                 "11222333000181", "LTDA",
                 new GetCompanyByIdOutput.AddressOutput("Rua A", "10", null, "Centro", "Sao Paulo", "SP",
                         "01001000", "Brasil"),
-                "contato@empresa.com", "1133445566", "11987654321", true);
+                "contato@empresa.com", "1133445566", "11987654321", "2026-02-27", true);
 
         when(service.execute("company-id")).thenReturn(expectedOutput);
 

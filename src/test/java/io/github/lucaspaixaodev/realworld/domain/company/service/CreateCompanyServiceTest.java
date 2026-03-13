@@ -42,6 +42,7 @@ class CreateCompanyServiceTest {
         assertEquals("contato@empresa.com", savedCompany.getEmail().value());
         assertEquals("1133445566", savedCompany.getPhone().value());
         assertEquals("11987654321", savedCompany.getCellphone().value());
+        assertNotNull(savedCompany.getRegisteredAt());
     }
 
     @Test

@@ -5,12 +5,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "CompanyResponse", description = "Company details")
 public record CompanyResponse(String id, String legalName, String tradeName, String taxId, String companyType,
-        AddressResponse address, String email, String phone, String cellphone, boolean active) {
+        AddressResponse address, String email, String phone, String cellphone, String registeredAt, boolean active) {
 
     public static CompanyResponse from(GetCompanyByIdOutput output) {
         return new CompanyResponse(output.id(), output.legalName(), output.tradeName(), output.taxId(),
                 output.companyType(), AddressResponse.from(output.address()), output.email(), output.phone(),
-                output.cellphone(), output.active());
+                output.cellphone(), output.registeredAt(), output.active());
     }
 
     @Schema(name = "CompanyAddressREsponse", description = "Company address details")

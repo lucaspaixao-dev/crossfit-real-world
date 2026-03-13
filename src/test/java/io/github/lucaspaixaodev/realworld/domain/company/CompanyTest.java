@@ -4,6 +4,8 @@ import io.github.lucaspaixaodev.realworld.domain.exception.ValidationException;
 import io.github.lucaspaixaodev.realworld.domain.shared.*;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CompanyTest {
@@ -27,6 +29,7 @@ class CompanyTest {
         assertSame(email, company.getEmail());
         assertSame(phone, company.getPhone());
         assertSame(cellphone, company.getCellphone());
+        assertEquals(LocalDate.now(), company.getRegisteredAt());
         assertTrue(company.isActive());
     }
 

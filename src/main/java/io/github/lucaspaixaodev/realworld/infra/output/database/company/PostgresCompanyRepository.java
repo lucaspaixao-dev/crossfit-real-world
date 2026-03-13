@@ -70,6 +70,6 @@ public class PostgresCompanyRepository implements CompanyRepository {
         return Company.restore(ID.from(entity.getId()), entity.getLegalName(), entity.getTradeName(), entity.getTaxId(),
                 entity.getCompanyType(), address, new Email(entity.getEmail()),
                 entity.getPhone() != null ? new Phone(entity.getPhone()) : null, new Cellphone(entity.getCellphone()),
-                entity.isActive());
+                entity.getRegisteredAt(), entity.isActive());
     }
 }

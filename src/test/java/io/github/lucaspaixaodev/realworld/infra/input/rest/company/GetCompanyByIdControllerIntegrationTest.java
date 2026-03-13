@@ -11,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -39,7 +41,7 @@ class GetCompanyByIdControllerIntegrationTest {
         insertCompany(id);
         insertCompanyAddress(id);
 
-        mockMvc.perform(get("/company/{id}", id))
+        mockMvc.perform(get("/companies/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(id.toString()))
@@ -50,6 +52,7 @@ class GetCompanyByIdControllerIntegrationTest {
                 .andExpect(jsonPath("$.email").value("contato@crossfitrealworld.com"))
                 .andExpect(jsonPath("$.phone").value("1133334444"))
                 .andExpect(jsonPath("$.cellphone").value("11999998888"))
+                .andExpect(jsonPath("$.registeredAt").value("2026-02-27"))
                 .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.address.street").value("Av. Paulista"))
                 .andExpect(jsonPath("$.address.number").value("1000"))
@@ -63,32 +66,32 @@ class GetCompanyByIdControllerIntegrationTest {
 
     @Test
     void shouldReturnBadRequestWhenIdIsInvalid() throws Exception {
-        mockMvc.perform(get("/company/{id}", "invalid-id"))
+        mockMvc.perform(get("/companies/{id}", "invalid-id"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.parseMediaType(
                         MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
                 .andExpect(jsonPath("$.title").value("Validation error"))
                 .andExpect(jsonPath("$.detail").value("id must be a valid UUID"))
-                .andExpect(jsonPath("$.instance").value("/company/invalid-id"));
+                .andExpect(jsonPath("$.instance").value("/companies/invalid-id"));
     }
 
     @Test
     void shouldReturnNotFoundWhenCompanyDoesNotExist() throws Exception {
         UUID missingId = UUID.randomUUID();
 
-        mockMvc.perform(get("/company/{id}", missingId))
+        mockMvc.perform(get("/companies/{id}", missingId))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.parseMediaType(
                         MediaType.APPLICATION_PROBLEM_JSON_VALUE)))
                 .andExpect(jsonPath("$.title").value("Business error"))
                 .andExpect(jsonPath("$.detail").value("company not found"))
-                .andExpect(jsonPath("$.instance").value("/company/" + missingId));
+                .andExpect(jsonPath("$.instance").value("/companies/" + missingId));
     }
 
     private void insertCompany(UUID id) {
         jdbcTemplate.update(
-                "INSERT INTO company (id, legal_name, trade_name, tax_id, company_type, email, phone, cellphone, active) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO company (id, legal_name, trade_name, tax_id, company_type, email, phone, cellphone, registered_at, created_at, updated_at, active) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 id,
                 "Crossfit Real World LTDA",
                 "Crossfit Real World",
@@ -97,6 +100,9 @@ class GetCompanyByIdControllerIntegrationTest {
                 "contato@crossfitrealworld.com",
                 "1133334444",
                 "11999998888",
+                Date.valueOf("2026-02-27"),
+                Timestamp.valueOf("2026-02-27 09:00:00"),
+                Timestamp.valueOf("2026-02-27 09:00:00"),
                 true);
     }
 
