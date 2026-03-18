@@ -3,6 +3,7 @@ package io.github.lucaspaixaodev.realworld.application.company.usecase;
 import io.github.lucaspaixaodev.realworld.domain.company.input.CreateCompanyInput;
 import io.github.lucaspaixaodev.realworld.domain.company.output.CreateCompanyOutput;
 import io.github.lucaspaixaodev.realworld.domain.company.service.CreateCompanyService;
+import io.github.lucaspaixaodev.realworld.domain.notification.input.PublishNewCompanyInput;
 import io.github.lucaspaixaodev.realworld.domain.notification.service.PublishNewCompanyService;
 import io.github.lucaspaixaodev.realworld.domain.shared.input.AddressInput;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class CreateCompanyUseCaseTest {
 
         assertSame(expectedOutput, result);
         verify(createCompanyService).execute(input);
-        verify(publishNewCompanyService).execute("company-id", queueName);
+        verify(publishNewCompanyService).execute(new PublishNewCompanyInput("company-id", queueName));
         verifyNoMoreInteractions(createCompanyService, publishNewCompanyService);
     }
 }

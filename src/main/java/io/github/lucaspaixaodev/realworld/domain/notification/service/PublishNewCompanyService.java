@@ -4,6 +4,7 @@ import io.github.lucaspaixaodev.realworld.domain.company.Company;
 import io.github.lucaspaixaodev.realworld.domain.company.repository.CompanyRepository;
 import io.github.lucaspaixaodev.realworld.domain.exception.NotFoundException;
 import io.github.lucaspaixaodev.realworld.domain.notification.NewCompanyNotification;
+import io.github.lucaspaixaodev.realworld.domain.notification.input.PublishNewCompanyInput;
 import io.github.lucaspaixaodev.realworld.domain.notification.publisher.NotificationPublisher;
 import io.github.lucaspaixaodev.realworld.domain.shared.ID;
 
@@ -17,11 +18,11 @@ public class PublishNewCompanyService {
         this.notificationPublisher = notificationPublisher;
     }
 
-    public void execute(String companyId, String queueName) {
-        Company company = companyRepository.findById(ID.from(companyId))
+    public void execute(PublishNewCompanyInput input) {
+        Company company = companyRepository.findById(ID.from(input.companyId()))
                 .orElseThrow(() -> new NotFoundException("Company not found"));
 
         var notification = new NewCompanyNotification(company.getId().toString(), company.getLegalName());
-        notificationPublisher.publish(notification, queueName, companyId);
+        notificationPublisher.publish(notification, input.queueName(), input.companyId());
     }
 }

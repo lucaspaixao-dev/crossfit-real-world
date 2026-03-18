@@ -4,6 +4,7 @@ import io.github.lucaspaixaodev.realworld.domain.company.Company;
 import io.github.lucaspaixaodev.realworld.domain.company.repository.CompanyRepository;
 import io.github.lucaspaixaodev.realworld.domain.exception.NotFoundException;
 import io.github.lucaspaixaodev.realworld.domain.notification.NewCompanyNotification;
+import io.github.lucaspaixaodev.realworld.domain.notification.input.PublishNewCompanyInput;
 import io.github.lucaspaixaodev.realworld.domain.notification.publisher.NotificationPublisher;
 import io.github.lucaspaixaodev.realworld.domain.shared.*;
 import io.github.lucaspaixaodev.realworld.domain.company.CompanyType;
@@ -34,7 +35,7 @@ class PublishNewCompanyServiceTest {
 
         when(companyRepository.findById(companyId)).thenReturn(Optional.of(company));
 
-        service.execute(companyId.toString(), "new-companies.fifo");
+        service.execute(new PublishNewCompanyInput(companyId.toString(), "new-companies.fifo"));
 
         ArgumentCaptor<NewCompanyNotification> notificationCaptor = ArgumentCaptor
                 .forClass(NewCompanyNotification.class);
@@ -50,8 +51,8 @@ class PublishNewCompanyServiceTest {
         ID companyId = ID.random();
         when(companyRepository.findById(companyId)).thenReturn(Optional.empty());
 
-        NotFoundException exception = assertThrows(NotFoundException.class,
-                () -> service.execute(companyId.toString(), "new-companies.fifo"));
+        PublishNewCompanyInput input = new PublishNewCompanyInput(companyId.toString(), "new-companies.fifo");
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> service.execute(input));
 
         assertEquals("Company not found", exception.getMessage());
         verifyNoInteractions(notificationPublisher);
