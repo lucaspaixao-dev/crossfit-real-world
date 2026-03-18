@@ -23,9 +23,9 @@ Hexagonal / Clean Architecture with three layers:
 
 - **Domain** (`domain/`) — Pure business logic, no framework dependencies. Contains aggregates, value objects, domain services, repository interfaces (ports), and domain exceptions. Immutable domain objects with `create()` (new) and `restore()` (from DB) factory methods.
 - **Application** (`application/*/usecase/`) — Thin use case orchestrators (`@Component`) that delegate to domain services.
-- **Infrastructure** (`infra/`) — Framework adapters. `infra/input/rest/` for REST controllers (implementing API interfaces with OpenAPI annotations), `infra/output/database/` for JPA repository implementations, `infra/config/` for Spring bean wiring of domain services.
+- **Infrastructure** (`infra/`) — Framework adapters. `infra/input/rest/` for REST controllers (implementing API interfaces with OpenAPI annotations), `infra/output/database/` for JPA repository implementations, `infra/config/` for Spring bean wiring of domain services, `infra/output/aws/sqs` for SQS integration, application producers are here, `infra/input/aws/sqs` for SQS integration, application consumers are here..
 
-**Data flow:** Controller → UseCase → DomainService → Repository interface → PostgresRepository (JPA) → PostgreSQL
+**Data flow for database:** Controller → UseCase → DomainService → Repository interface → PostgresRepository (JPA) → PostgreSQL
 
 **Exception mapping** in `GlobalExceptionHandler`: `ValidationException` → 400, `NotFoundException` → 404, `AlreadyExistsException` → 409, other `BaseException` → 422.
 

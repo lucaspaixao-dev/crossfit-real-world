@@ -11,3 +11,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+
+aws:
+  region: us-east-1
+  sqs:
+    endpoint: http://localhost:4566
+    queues:
+      new-company: new-companies.fifo
